@@ -1,13 +1,16 @@
 from abc import ABC, abstractmethod
+from Barky.Models.BookMark import BookMark
 
 class AbstractRepository(ABC):
+    def __init__(self):
+        self.seen = set()
 
     @abstractmethod
-    def BookmarkAdd(self, Models.BookMark): 
+    def BookmarkAdd(self, bookmark: BookMark): 
         raise NotImplemented
 
     @abstractmethod
-    def BookmarkDelete(self, Models.BookMark): 
+    def BookmarkDelete(self, bookmark: BookMark): 
         raise NotImplemented
 
     @abstractmethod
