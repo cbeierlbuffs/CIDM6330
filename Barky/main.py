@@ -1,0 +1,1 @@
+from models.bookmark import BookMark

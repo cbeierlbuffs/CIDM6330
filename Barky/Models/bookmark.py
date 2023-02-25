@@ -8,5 +8,6 @@ class BookMark:
     notes: str
     date_added: str
 
-newbookmark = BookMark(1,"TestTitle","hxxp://www.google.com","Test note check","02/24/2023")
-print (newbookmark)
+
+#newbookmark = BookMark(1,"TestTitle","hxxp://www.google.com","Test note check","02/24/2023")
+#print (newbookmark)
