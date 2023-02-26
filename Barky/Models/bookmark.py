@@ -7,11 +7,7 @@ class BookMark:
     title: str
     url: str
     notes: str
-    date_added: str
+    date_added: str = datetime.now().strftime('%m/%d/%y')
 
     def __lt__(self, other):
         return datetime.strptime(self.date_added, '%m/%d/%y') < datetime.strptime(other.date_added, '%m/%d/%y')
-
-
-#newbookmark = BookMark(1,"TestTitle","hxxp://www.google.com","Test note check","02/24/2023")
-#print (newbookmark)

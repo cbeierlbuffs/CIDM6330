@@ -10,14 +10,17 @@ class AbstractRepository(ABC):
         raise NotImplemented
 
     @abstractmethod
-    def BookmarkDelete(self, bookmark: BookMark): 
+    def BookmarkDelete(self, int): 
         raise NotImplemented
 
     @abstractmethod
-    def BookMarkList_by_Date(self, reference):
+    def BookmarkList_by_Date(self):
         raise NotImplemented
 
     @abstractmethod
-    def BookMarkList_by_Title(self, reference):
+    def BookmarkList_by_Title(self):
         raise NotImplemented
     
+    @abstractmethod
+    def BookmarkRetrieve(self, int):
+        raise NotImplemented
