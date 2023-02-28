@@ -157,27 +157,6 @@ class DatabaseManager:
         )
 
 import pytest
-
-@pytest.fixture
-def dbm():
-    dbm = DatabaseManager(":memory:")
-    return dbm
-
-@pytest.fixture
-def table_name():
-    table_name = "BOOKMARKS"
-    return table_name
-
-@pytest.fixture
-def table_structure():
-    table_structure = {
-        "id":"INTEGER PRIMARY KEY AUTOINCREMENT",
-        "title":"TEXT NOT NULL",
-        "url": "TEXT NOT NULL",
-        "notes":"TEXT",
-        "date_added":"TEXT NOT NULL"
-    }
-    return table_structure
  
 def test_create_table_mapped_method(dbm, table_name, table_structure):
     dbm.create_table(table_name,table_structure)
@@ -251,9 +230,10 @@ def test_delete_records(dbm, table_name, table_structure):
     dbm.add(table_name,record)
     dbm.delete(table_name,del_criteria)
     dbm.connection.commit()
+
     stmt_cursor = dbm._execute(
         f'''
-        SELECT count(*) FROM {table_name};
+        SELECT count(*) FROM {table_name} WHERE {del_criteria_string};
         '''
     )
     record_count = stmt_cursor.fetchone()[0]
