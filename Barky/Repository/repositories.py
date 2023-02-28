@@ -25,7 +25,10 @@ class FakeRepository(AbstractRepository):
     
     def BookmarkList_by_Date(self):
         self.seen.sort()
-    
+
+    def BookmarkList_by_id(self):
+        self.seen.sort(key=lambda x: x.id)
+
     def BookmarkList_by_Title(self):
         self.seen.sort(key=lambda x: x.title)
 

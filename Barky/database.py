@@ -156,4 +156,145 @@ class DatabaseManager:
             tuple(criteria.values()),
         )
 
+import pytest
 
+@pytest.fixture
+def dbm():
+    dbm = DatabaseManager(":memory:")
+    return dbm
+
+@pytest.fixture
+def table_name():
+    table_name = "BOOKMARKS"
+    return table_name
+
+@pytest.fixture
+def table_structure():
+    table_structure = {
+        "id":"INTEGER PRIMARY KEY AUTOINCREMENT",
+        "title":"TEXT NOT NULL",
+        "url": "TEXT NOT NULL",
+        "notes":"TEXT",
+        "date_added":"TEXT NOT NULL"
+    }
+    return table_structure
+ 
+def test_create_table_mapped_method(dbm, table_name, table_structure):
+    dbm.create_table(table_name,table_structure)
+    stmt_cursor = dbm._execute(
+        f'''
+        SELECT count(*) FROM sqlite_master WHERE type='table' AND name='{table_name}';
+        '''
+    )
+    dbm.connection.commit()
+    table_count = stmt_cursor.fetchone()[0]
+    dbm.connection.close
+    assert table_count == 1
+
+def test_drop_table(dbm, table_name):
+    stmt_cursor = dbm._execute(
+        f'''
+        CREATE TABLE '{table_name}' (id int PRIMARY KEY);
+        '''
+    )
+    dbm.connection.commit()
+    dbm.drop_table(table_name)
+    stmt_cursor = dbm._execute(
+        f'''
+        SELECT count(*) FROM sqlite_master WHERE type='table' AND name='{table_name}';
+        '''
+    )
+    dbm.connection.commit()
+    table_count = stmt_cursor.fetchone()[0]
+    dbm.connection.close()
+    assert table_count == 0
+
+def test_add_record(dbm, table_name, table_structure):
+    record = {
+        "title" : "testtitle",
+        "url" :"hxxp://www.test.url/",
+        "notes":"testnotes",
+        "date_added":"02/12/22"
+    }
+    dbm.create_table(table_name,table_structure)
+    dbm.add(table_name,record)
+    dbm.connection.commit()
+    stmt_cursor = dbm._execute(
+        f'''
+        SELECT count(*) FROM {table_name} WHERE title='{record['title']}';
+        '''
+    )
+    record_count = stmt_cursor.fetchone()[0]
+    dbm.connection.close()
+    assert record_count == 1
+
+def test_delete_records(dbm, table_name, table_structure):
+    record = {
+        "title" : "testtitle",
+        "url" :"hxxp://www.test.url/",
+        "notes":"testnotes",
+        "date_added":"02/12/22"
+    }
+    del_criteria = {
+        "title" : "testtitle",
+        "url" : "hxxp://www.test.url/"
+    }
+    del_criteria_string = ''
+    del_criteria_len = len(del_criteria)
+    del_criteria_cnt = 1
+    for del_criteria_key in del_criteria:   
+        del_criteria_string = del_criteria_string + del_criteria_key + "=" + "'" + del_criteria[del_criteria_key] + "'"
+        if del_criteria_len > 1 and del_criteria_cnt < del_criteria_len:
+            del_criteria_string = del_criteria_string + " AND "
+            del_criteria_cnt = del_criteria_cnt + 1 
+    dbm.create_table(table_name,table_structure)
+    dbm.add(table_name,record)
+    dbm.delete(table_name,del_criteria)
+    dbm.connection.commit()
+    stmt_cursor = dbm._execute(
+        f'''
+        SELECT count(*) FROM {table_name};
+        '''
+    )
+    record_count = stmt_cursor.fetchone()[0]
+    dbm.connection.close()
+    assert record_count == 0
+
+def test_select_records(dbm, table_name, table_structure):
+    record1 = {
+        "title" : "Atesttitle",
+        "url" :"hxxp://www.test.url/",
+        "notes":"testnotes",
+        "date_added":"02/12/22"
+    }
+    record2 = {
+        "title" : "Ctesttitle",
+        "url" :"hxxp://www.test.url/",
+        "notes":"testnotes",
+        "date_added":"02/10/22"
+    }  
+    record3 = {
+        "title" : "Btesttitle",
+        "url" :"hxxp://www.test.url/",
+        "notes":"testnotes",
+        "date_added":"02/10/23"
+    }      
+    select_criteria = {
+        "url" : "hxxp://www.test.url/"
+    }
+    dbm.create_table(table_name,table_structure)
+    dbm.add(table_name,record1)
+    dbm.add(table_name,record2)
+    dbm.add(table_name,record3)
+    dbm.connection.commit()   
+    dbm.select(table_name,select_criteria)
+    stmt_cursor = dbm._execute(
+        f'''
+        SELECT * FROM {table_name} WHERE url='{select_criteria['url']}' ORDER BY date_added;
+        '''
+    )
+    first_record_id = stmt_cursor.fetchone()[0]
+    dbm.connection.close()
+    assert first_record_id == 2    
+
+#test using python -m pytest .\database.py
