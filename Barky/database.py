@@ -188,32 +188,20 @@ def test_drop_table(dbm, table_name):
     dbm.connection.close()
     assert table_count == 0
 
-def test_add_record(dbm, table_name, table_structure):
-    record = {
-        "title" : "testtitle",
-        "url" :"hxxp://www.test.url/",
-        "notes":"testnotes",
-        "date_added":"02/12/22"
-    }
+def test_add_record(dbm, table_name, table_structure, record1):
     dbm.create_table(table_name,table_structure)
     dbm.add(table_name,record)
     dbm.connection.commit()
     stmt_cursor = dbm._execute(
         f'''
-        SELECT count(*) FROM {table_name} WHERE title='{record['title']}';
+        SELECT count(*) FROM {table_name} WHERE title='{record1['title']}';
         '''
     )
     record_count = stmt_cursor.fetchone()[0]
     dbm.connection.close()
     assert record_count == 1
 
-def test_delete_records(dbm, table_name, table_structure):
-    record = {
-        "title" : "testtitle",
-        "url" :"hxxp://www.test.url/",
-        "notes":"testnotes",
-        "date_added":"02/12/22"
-    }
+def test_delete_records(dbm, table_name, table_structure, record1):
     del_criteria = {
         "title" : "testtitle",
         "url" : "hxxp://www.test.url/"
@@ -227,7 +215,7 @@ def test_delete_records(dbm, table_name, table_structure):
             del_criteria_string = del_criteria_string + " AND "
             del_criteria_cnt = del_criteria_cnt + 1 
     dbm.create_table(table_name,table_structure)
-    dbm.add(table_name,record)
+    dbm.add(table_name,record1)
     dbm.delete(table_name,del_criteria)
     dbm.connection.commit()
 
@@ -240,25 +228,8 @@ def test_delete_records(dbm, table_name, table_structure):
     dbm.connection.close()
     assert record_count == 0
 
-def test_select_records(dbm, table_name, table_structure):
-    record1 = {
-        "title" : "Atesttitle",
-        "url" :"hxxp://www.test.url/",
-        "notes":"testnotes",
-        "date_added":"02/12/22"
-    }
-    record2 = {
-        "title" : "Ctesttitle",
-        "url" :"hxxp://www.test.url/",
-        "notes":"testnotes",
-        "date_added":"02/10/22"
-    }  
-    record3 = {
-        "title" : "Btesttitle",
-        "url" :"hxxp://www.test.url/",
-        "notes":"testnotes",
-        "date_added":"02/10/23"
-    }      
+def test_select_records(dbm, table_name, table_structure, record1, record2, record3):
+   
     select_criteria = {
         "url" : "hxxp://www.test.url/"
     }

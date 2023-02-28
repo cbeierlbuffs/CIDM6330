@@ -8,7 +8,7 @@ def dbm():
 
 @pytest.fixture
 def table_name():
-    table_name = "BOOKMARKS"
+    table_name = "bookmarks"
     return table_name
 
 @pytest.fixture
@@ -21,3 +21,33 @@ def table_structure():
         "date_added":"TEXT NOT NULL"
     }
     return table_structure
+
+@pytest.fixture
+def record1():
+    record1 = {
+        "title" : "Atesttitle",
+        "url" :"hxxp://www.test.url/",
+        "notes":"testnotes",
+        "date_added":"02/12/22"
+    }
+    return record1
+
+@pytest.fixture
+def record2():
+    record2 = {
+        "title" : "Ctesttitle",
+        "url" :"hxxp://www.test.url/",
+        "notes":"testnotes",
+        "date_added":"02/10/22"
+    }
+    return record2
+
+@pytest.fixture  
+def record3():
+    record3 = {
+        "title" : "Btesttitle",
+        "url" :"hxxp://www.test.url/",
+        "notes":"testnotes",
+        "date_added":"02/10/23"
+    }
+    return record3  

@@ -135,3 +135,46 @@ class EditBookmarkCommand(Command):
 class QuitCommand(Command):
     def execute(self, data=None):
         sys.exit()
+
+import pytest
+
+def test_CreateBookmarksTableCommand(table_name):
+    CreateBookmarksTableCommand()
+    stmt_cursor = db._execute(
+        f'''
+        SELECT count(*) FROM sqlite_master WHERE type='table' AND name='{table_name}';
+        '''
+    )
+    table_count = stmt_cursor.fetchone()[0]
+    db.connection.close
+    assert table_count == 1
+
+def test_AddBookmarkCommand(table_name, record1):
+    del record1['date_added']
+    command = AddBookmarkCommand()
+    resp = command.execute(record1)
+    assert resp == "Bookmark added!"
+
+def test_ListBookmarksCommand(table_name, table_structure, record1, record2, record3):
+    db.drop_table(table_name)
+    db.connection.commit()
+    db.create_table(table_name,table_structure)
+    db.add(table_name,record1)
+    db.add(table_name,record2)
+    db.add(table_name,record3)
+    db.connection.commit()
+    command = ListBookmarksCommand()
+    resp = command.execute('title')
+    assert resp[0][1] == 'Ctesttitle'
+
+def test_DeleteBookmarkCommand(table_name, table_structure, record1, record2, record3):
+    db.drop_table(table_name)
+    db.connection.commit()
+    db.create_table(table_name,table_structure)
+    db.add(table_name,record1)
+    db.add(table_name,record2)
+    db.add(table_name,record3)
+    db.connection.commit()
+    command = DeleteBookmarkCommand()
+    resp = command.execute(2)
+    assert resp == 'Bookmark deleted!'
