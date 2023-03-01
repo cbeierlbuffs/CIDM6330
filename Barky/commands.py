@@ -124,11 +124,7 @@ class ImportGitHubStarsCommand(Command):
 
 class EditBookmarkCommand(Command):
     def execute(self, data):
-        db.update(
-            "bookmarks",
-            {"id": data["id"]},
-            data["update"],
-        )
+        db.update("bookmarks", data)
         return "Bookmark updated!"
 
 
@@ -178,3 +174,30 @@ def test_DeleteBookmarkCommand(table_name, table_structure, record1, record2, re
     command = DeleteBookmarkCommand()
     resp = command.execute(2)
     assert resp == 'Bookmark deleted!'
+
+def test_ImportGitHubStarsCommand():
+    command = ImportGitHubStarsCommand()
+    data = {
+        'github_username': 'cbeierlbuffs'
+    }
+    resp = command.execute(data)
+    assert resp == 'Imported 0 bookmarks from starred repos!'
+
+def test_EditBookmarkCommand(table_name, table_structure, record1):
+    data = {
+        'id' : '1',
+        'notes' : 'updated notes field'
+    }
+    db.drop_table(table_name)
+    db.connection.commit()
+    db.create_table(table_name,table_structure)
+    db.add(table_name,record1)
+    command = EditBookmarkCommand()
+    resp = command.execute(data)
+    assert resp == 'Bookmark updated!'
+
+def test_QuitCommand():
+    with pytest.raises(SystemExit) as e:
+        command = QuitCommand()
+        command.execute()
+    assert e.type == SystemExit

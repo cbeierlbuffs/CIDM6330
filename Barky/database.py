@@ -128,6 +128,25 @@ class DatabaseManager:
             tuple(criteria.values()), #https://www.w3schools.com/python/python_tuples.asp
         )
 
+    def update(self, table_name, updatefields):
+        '''
+        Stubbing out basic update update function
+
+        '''
+        id = updatefields['id']
+        del updatefields['id']
+        placeholders = [f'{column} = ?' for column in updatefields.keys()]
+        update_fields = ' AND '.join(placeholders)
+        self._execute(
+            f'''
+            UPDATE {table_name}
+            SET {update_fields}
+            WHERE id = {id};
+            ''',
+            tuple(updatefields.values()),
+        )
+    
+
     def select(self, table_name, criteria=None, order_by=None):
         '''
         we commonly need to find, select, and sort data
@@ -190,7 +209,7 @@ def test_drop_table(dbm, table_name):
 
 def test_add_record(dbm, table_name, table_structure, record1):
     dbm.create_table(table_name,table_structure)
-    dbm.add(table_name,record)
+    dbm.add(table_name,record1)
     dbm.connection.commit()
     stmt_cursor = dbm._execute(
         f'''
@@ -229,7 +248,6 @@ def test_delete_records(dbm, table_name, table_structure, record1):
     assert record_count == 0
 
 def test_select_records(dbm, table_name, table_structure, record1, record2, record3):
-   
     select_criteria = {
         "url" : "hxxp://www.test.url/"
     }
@@ -247,5 +265,15 @@ def test_select_records(dbm, table_name, table_structure, record1, record2, reco
     first_record_id = stmt_cursor.fetchone()[0]
     dbm.connection.close()
     assert first_record_id == 2    
+
+def test_update_record(dbm, table_name, table_structure, record1):
+    data1 = {
+        'id' : '1',
+        'url' : 'hxxps://www.test.com/arf',
+        'notes' : 'newest note'
+    }
+    dbm.create_table(table_name,table_structure)
+    dbm.update(table_name,data1)
+    dbm.connection.commit()
 
 #test using python -m pytest .\database.py
